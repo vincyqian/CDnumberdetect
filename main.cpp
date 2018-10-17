@@ -16,20 +16,9 @@ using namespace cv::ml;
 Point center;
 Size imageSize = Size(20,20);
 
-/******hogÌØÕ÷********/
-void coumputeHog(const Mat& src, vector<float> &descriptors)
-
-{
-
-	HOGDescriptor myHog = HOGDescriptor(imageSize, Size(5, 5), cvSize(3, 3), cvSize(3, 3), 9);
-
-	myHog.compute(src.clone(), descriptors, Size(1, 1), Size(0, 0));
 
 
-
-}
-
-/****Êó±êµã»÷Ô²µÄÖĞĞÄ*****/
+/****é¼ æ ‡ç‚¹å‡»åœ†çš„ä¸­å¿ƒ*****/
 void on_mouse(int EVENT, int x, int y, int flags, void* userdata)
 {
 	Mat& hh = *(Mat*)userdata;
@@ -37,7 +26,7 @@ void on_mouse(int EVENT, int x, int y, int flags, void* userdata)
 
 	switch (EVENT)
 	{
-	   case EVENT_LBUTTONDOWN://°´ÏÂ×ó¼ü
+	   case EVENT_LBUTTONDOWN://æŒ‰ä¸‹å·¦é”®
 	  {
 		  center = Point(x, y);
 
@@ -45,19 +34,19 @@ void on_mouse(int EVENT, int x, int y, int flags, void* userdata)
 	}
 }
 
-/****×ÔÊÊÓ¦ãĞÖµ»¯****/
+/****è‡ªé€‚åº”é˜ˆå€¼åŒ–****/
 Mat adaptbinary(Mat img)
 {
 	Mat imggray;
 	cvtColor(img, imggray, CV_BGR2GRAY);
 	Mat binary;
-	int blockSize = 29; /* ÔÚÒ»¶Î·¶Î§ÄÚ£¬±ÈÈç19-31£¬¶¼ÓĞĞ§ */
-	int threshold = -10; /* ¿ÉÔÚÕı¸º10Ö®ÄÚ£¬Ê®×Ö/ÁâĞÎÎª¸º£¬Ô²ĞÎÎªÕıÇÒ½á¹û·´É« */
+	int blockSize = 29; /* åœ¨ä¸€æ®µèŒƒå›´å†…ï¼Œæ¯”å¦‚19-31ï¼Œéƒ½æœ‰æ•ˆ */
+	int threshold = -10; /* å¯åœ¨æ­£è´Ÿ10ä¹‹å†…ï¼Œåå­—/è±å½¢ä¸ºè´Ÿï¼Œåœ†å½¢ä¸ºæ­£ä¸”ç»“æœåè‰² */
 	adaptiveThreshold(imggray, binary, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, blockSize, threshold);
 	return binary;
 }
 
-/***»ñÈ¡ÎÄ¼şÃû****/
+/***è·å–æ–‡ä»¶å****/
 void getFiles(string path, vector<string>& files)
 {
 	intptr_t hFile = 0;
@@ -81,67 +70,67 @@ void getFiles(string path, vector<string>& files)
 	}
 }
 
-/****ÑµÁ·*****/
+/****è®­ç»ƒ*****/
 int train()
 {
-	////¼ì²â´°¿Ú(128,128),¿é³ß´ç(16,16),¿é²½³¤(8,8),cell³ß´ç(8,8),Ö±·½Í¼bin¸öÊı9  
+	////æ£€æµ‹çª—å£(128,128),å—å°ºå¯¸(16,16),å—æ­¥é•¿(8,8),cellå°ºå¯¸(8,8),ç›´æ–¹å›¾binä¸ªæ•°9  
 	//HOGDescriptor hog(Size(128, 128), Size(16, 16), Size(8, 8), Size(8, 8), 9);
 
-	////HOG¼ì²âÆ÷£¬ÓÃÀ´¼ÆËãHOGÃèÊö×ÓµÄ  
-	//int DescriptorDim;//HOGÃèÊö×ÓµÄÎ¬Êı£¬ÓÉÍ¼Æ¬´óĞ¡¡¢¼ì²â´°¿Ú´óĞ¡¡¢¿é´óĞ¡¡¢Ï¸°ûµ¥ÔªÖĞÖ±·½Í¼bin¸öÊı¾ö¶¨  
+	////HOGæ£€æµ‹å™¨ï¼Œç”¨æ¥è®¡ç®—HOGæè¿°å­çš„  
+	//int DescriptorDim;//HOGæè¿°å­çš„ç»´æ•°ï¼Œç”±å›¾ç‰‡å¤§å°ã€æ£€æµ‹çª—å£å¤§å°ã€å—å¤§å°ã€ç»†èƒå•å…ƒä¸­ç›´æ–¹å›¾binä¸ªæ•°å†³å®š  
 
-	//Mat sampleFeatureMat;//ËùÓĞÑµÁ·Ñù±¾µÄÌØÕ÷ÏòÁ¿×é³ÉµÄ¾ØÕó£¬ĞĞÊıµÈÓÚËùÓĞÑù±¾µÄ¸öÊı£¬ÁĞÊıµÈÓÚHOGÃèÊö×ÓÎ¬Êı  
-	//Mat sampleLabelMat;//ÑµÁ·Ñù±¾µÄÀà±ğÏòÁ¿£¬ĞĞÊıµÈÓÚËùÓĞÑù±¾µÄ¸öÊı£¬ÁĞÊıµÈÓÚ1£»1±íÊ¾ÓĞÈË£¬-1±íÊ¾ÎŞÈË  
+	//Mat sampleFeatureMat;//æ‰€æœ‰è®­ç»ƒæ ·æœ¬çš„ç‰¹å¾å‘é‡ç»„æˆçš„çŸ©é˜µï¼Œè¡Œæ•°ç­‰äºæ‰€æœ‰æ ·æœ¬çš„ä¸ªæ•°ï¼Œåˆ—æ•°ç­‰äºHOGæè¿°å­ç»´æ•°  
+	//Mat sampleLabelMat;//è®­ç»ƒæ ·æœ¬çš„ç±»åˆ«å‘é‡ï¼Œè¡Œæ•°ç­‰äºæ‰€æœ‰æ ·æœ¬çš„ä¸ªæ•°ï¼Œåˆ—æ•°ç­‰äº1ï¼›1è¡¨ç¤ºæœ‰äººï¼Œ-1è¡¨ç¤ºæ— äºº  
 	Mat classes;
-	vector<string> img_path;//ÊäÈëÎÄ¼şÃû±äÁ¿     
+	vector<string> img_path;//è¾“å…¥æ–‡ä»¶åå˜é‡     
 	vector<int> img_catg;
 	int nLine = 0;
 	string buf;
 
-	ifstream svm_data("D:/train_list.txt");//ÑµÁ·Ñù±¾Í¼Æ¬µÄÂ·¾¶¶¼Ğ´ÔÚÕâ¸ötxtÎÄ¼şÖĞ£¬Ê¹ÓÃbatÅú´¦ÀíÎÄ¼ş¿ÉÒÔµÃµ½Õâ¸ötxtÎÄ¼ş       
+	ifstream svm_data("D:/train_list.txt");//è®­ç»ƒæ ·æœ¬å›¾ç‰‡çš„è·¯å¾„éƒ½å†™åœ¨è¿™ä¸ªtxtæ–‡ä»¶ä¸­ï¼Œä½¿ç”¨batæ‰¹å¤„ç†æ–‡ä»¶å¯ä»¥å¾—åˆ°è¿™ä¸ªtxtæ–‡ä»¶       
 	ifstream svm_label("D:/label.txt");
 
 	unsigned long n;
-	while (svm_data)//½«ÑµÁ·Ñù±¾ÎÄ¼şÒÀ´Î¶ÁÈ¡½øÀ´      
+	while (svm_data)//å°†è®­ç»ƒæ ·æœ¬æ–‡ä»¶ä¾æ¬¡è¯»å–è¿›æ¥      
 	{
 		if (getline(svm_data, buf))
 		{
 			nLine++;
-			img_path.push_back(buf);//Í¼ÏñÂ·¾¶      
+			img_path.push_back(buf);//å›¾åƒè·¯å¾„      
 
 		}
 	}
 	nLine = 0;
-	while (svm_label)//½«ÑµÁ·±êÇ©ÎÄ¼şÒÀ´Î¶ÁÈ¡½øÀ´      
+	while (svm_label)//å°†è®­ç»ƒæ ‡ç­¾æ–‡ä»¶ä¾æ¬¡è¯»å–è¿›æ¥      
 	{
 		if (getline(svm_label, buf))
 		{
 			nLine++;
-			img_catg.push_back(atoi(buf.c_str()));//atoi½«×Ö·û´®×ª»»³ÉÕûĞÍ£¬±êÖ¾(0,1£¬2£¬...£¬9)£¬×¢ÒâÕâÀïÖÁÉÙÒªÓĞÁ½¸öÀà±ğ£¬·ñÔò»á³ö´í      
+			img_catg.push_back(atoi(buf.c_str()));//atoiå°†å­—ç¬¦ä¸²è½¬æ¢æˆæ•´å‹ï¼Œæ ‡å¿—(0,1ï¼Œ2ï¼Œ...ï¼Œ9)ï¼Œæ³¨æ„è¿™é‡Œè‡³å°‘è¦æœ‰ä¸¤ä¸ªç±»åˆ«ï¼Œå¦åˆ™ä¼šå‡ºé”™      
 		}
 	}
-	svm_data.close();//¹Ø±ÕÎÄ¼ş 
+	svm_data.close();//å…³é—­æ–‡ä»¶ 
 	svm_label.close();
 
 
 	Mat data_mat, labels_mat;
-	int  nImgNum = nLine; //nImgNumÊÇÑù±¾ÊıÁ¿    
-	cout << " ¹²ÓĞÑù±¾¸öÊıÎª£º " << nImgNum << endl;
-	//data_matÎªËùÓĞÑµÁ·Ñù±¾µÄÌØÕ÷ÏòÁ¿×é³ÉµÄ¾ØÕó£¬ĞĞÊıµÈÓÚËùÓĞÑù±¾µÄ¸öÊı£¬ÁĞÊıµÈÓÚHOGÃèÊö×ÓÎ¬Êı
-	data_mat = Mat::zeros(nImgNum, 324, CV_32FC1);  //ĞĞ¡¢ÁĞ¡¢ÀàĞÍ£»µÚ¶ş¸ö²ÎÊı£¬¼´¾ØÕóµÄÁĞÊÇÓÉÏÂÃæµÄdescriptorsµÄ´óĞ¡¾ö¶¨µÄ£¬¿ÉÒÔÓÉdescriptors.size()µÃµ½£¬ÇÒ¶ÔÓÚ²»Í¬´óĞ¡µÄÊäÈëÑµÁ·Í¼Æ¬£¬Õâ¸öÖµÊÇ²»Í¬µÄ    
+	int  nImgNum = nLine; //nImgNumæ˜¯æ ·æœ¬æ•°é‡    
+	cout << " å…±æœ‰æ ·æœ¬ä¸ªæ•°ä¸ºï¼š " << nImgNum << endl;
+	//data_matä¸ºæ‰€æœ‰è®­ç»ƒæ ·æœ¬çš„ç‰¹å¾å‘é‡ç»„æˆçš„çŸ©é˜µï¼Œè¡Œæ•°ç­‰äºæ‰€æœ‰æ ·æœ¬çš„ä¸ªæ•°ï¼Œåˆ—æ•°ç­‰äºHOGæè¿°å­ç»´æ•°
+	data_mat = Mat::zeros(nImgNum, 324, CV_32FC1);  //è¡Œã€åˆ—ã€ç±»å‹ï¼›ç¬¬äºŒä¸ªå‚æ•°ï¼Œå³çŸ©é˜µçš„åˆ—æ˜¯ç”±ä¸‹é¢çš„descriptorsçš„å¤§å°å†³å®šçš„ï¼Œå¯ä»¥ç”±descriptors.size()å¾—åˆ°ï¼Œä¸”å¯¹äºä¸åŒå¤§å°çš„è¾“å…¥è®­ç»ƒå›¾ç‰‡ï¼Œè¿™ä¸ªå€¼æ˜¯ä¸åŒçš„    
 
-													//ÀàĞÍ¾ØÕó,´æ´¢Ã¿¸öÑù±¾µÄÀàĞÍ±êÖ¾      
-													//labels_matÎªÑµÁ·Ñù±¾µÄÀà±ğÏòÁ¿£¬ĞĞÊıµÈÓÚËùÓĞÑù±¾µÄ¸öÊı£¬ÁĞÊıµÈÓÚ1£»ÔİÊ±£¬ºóÃæ»áĞŞ¸Ä£¬±ÈÈçÑù±¾0£¬¾ÍÎª0£¬Ñù±¾1¾ÍÎª1
+													//ç±»å‹çŸ©é˜µ,å­˜å‚¨æ¯ä¸ªæ ·æœ¬çš„ç±»å‹æ ‡å¿—      
+													//labels_matä¸ºè®­ç»ƒæ ·æœ¬çš„ç±»åˆ«å‘é‡ï¼Œè¡Œæ•°ç­‰äºæ‰€æœ‰æ ·æœ¬çš„ä¸ªæ•°ï¼Œåˆ—æ•°ç­‰äº1ï¼›æš‚æ—¶ï¼Œåé¢ä¼šä¿®æ”¹ï¼Œæ¯”å¦‚æ ·æœ¬0ï¼Œå°±ä¸º0ï¼Œæ ·æœ¬1å°±ä¸º1
 	labels_mat = Mat::zeros(nImgNum, 1, CV_32SC1);
 
 
 	Mat src;
-	Mat trainImg = Mat(Size(20, 20), CV_8UC3);//ĞèÒª·ÖÎöµÄÍ¼Æ¬£¬ÕâÀïÄ¬ÈÏÉè¶¨Í¼Æ¬ÊÇ28*28´óĞ¡£¬ËùÒÔÉÏÃæ¶¨ÒåÁË324£¬Èç¹ûÒª¸ü¸ÄÍ¼Æ¬´óĞ¡£¬¿ÉÒÔÏÈÓÃdebug²é¿´Ò»ÏÂdescriptorsÊÇ¶àÉÙ£¬È»ºóÉè¶¨ºÃÔÙÔËĞĞ      
+	Mat trainImg = Mat(Size(20, 20), CV_8UC3);//éœ€è¦åˆ†æçš„å›¾ç‰‡ï¼Œè¿™é‡Œé»˜è®¤è®¾å®šå›¾ç‰‡æ˜¯28*28å¤§å°ï¼Œæ‰€ä»¥ä¸Šé¢å®šä¹‰äº†324ï¼Œå¦‚æœè¦æ›´æ”¹å›¾ç‰‡å¤§å°ï¼Œå¯ä»¥å…ˆç”¨debugæŸ¥çœ‹ä¸€ä¸‹descriptorsæ˜¯å¤šå°‘ï¼Œç„¶åè®¾å®šå¥½å†è¿è¡Œ      
 	int q = img_path.size();
-	//´¦ÀíHOGÌØÕ÷    
+	//å¤„ç†HOGç‰¹å¾    
 	for (string::size_type i = 0; i != img_path.size(); i++)
 	{
-		cout << " \nµÚ " << i << "  ´ÎÑ­»·\n" << endl;
+		cout << " \nç¬¬ " << i << "  æ¬¡å¾ªç¯\n" << endl;
 		src = imread(img_path[i].c_str(), 1);
 		if (src.empty())
 		{
@@ -149,40 +138,40 @@ int train()
 			continue;
 		}
 
-		cout << " ´¦Àí£º " << img_path[i].c_str() << endl;
+		cout << " å¤„ç†ï¼š " << img_path[i].c_str() << endl;
 
 		resize(src, trainImg, trainImg.size());
 
 
-		//¼ì²â´°¿Ú(64,128),¿é³ß´ç(16,16),¿é²½³¤(8,8),cell³ß´ç(8,8),Ö±·½Í¼bin¸öÊı9  £¬ĞèÒªĞŞ¸Ä
+		//æ£€æµ‹çª—å£(64,128),å—å°ºå¯¸(16,16),å—æ­¥é•¿(8,8),cellå°ºå¯¸(8,8),ç›´æ–¹å›¾binä¸ªæ•°9  ï¼Œéœ€è¦ä¿®æ”¹
 		HOGDescriptor *hog = new HOGDescriptor(Size(20, 20), Size(10, 10), Size(5, 5), Size(5, 5), 9);
-		vector<float>descriptors;//´æ·Å½á¹û    ÎªHOGÃèÊö×ÓÏòÁ¿    
-		hog->compute(trainImg, descriptors, Size(1, 1), Size(0, 0)); //HogÌØÕ÷¼ÆËã£¬¼ì²â´°¿ÚÒÆ¶¯²½³¤(1,1)     
+		vector<float>descriptors;//å­˜æ”¾ç»“æœ    ä¸ºHOGæè¿°å­å‘é‡    
+		hog->compute(trainImg, descriptors, Size(1, 1), Size(0, 0)); //Hogç‰¹å¾è®¡ç®—ï¼Œæ£€æµ‹çª—å£ç§»åŠ¨æ­¥é•¿(1,1)     
 
-																	 //cout << "HOGÃèÊö×ÓÏòÁ¿¸öÊı    : " << descriptors.size() << endl;
+																	 //cout << "HOGæè¿°å­å‘é‡ä¸ªæ•°    : " << descriptors.size() << endl;
 
 
 		int    number = descriptors.size();
 		//cout << "number" << number;
 
-		//½«¼ÆËãºÃµÄHOGÃèÊö×Ó¸´ÖÆµ½Ñù±¾ÌØÕ÷¾ØÕódata_mat  
+		//å°†è®¡ç®—å¥½çš„HOGæè¿°å­å¤åˆ¶åˆ°æ ·æœ¬ç‰¹å¾çŸ©é˜µdata_mat  
 		for (int j = 0; j < number; j++)
 		{
-			data_mat.at<float>(i, j) = descriptors[j];//µÚ1¸öÑù±¾µÄÌØÕ÷ÏòÁ¿ÖĞµÄµÚn¸öÔªËØ  	
+			data_mat.at<float>(i, j) = descriptors[j];//ç¬¬1ä¸ªæ ·æœ¬çš„ç‰¹å¾å‘é‡ä¸­çš„ç¬¬nä¸ªå…ƒç´   	
 		}
 
 		labels_mat.at<int>(i, 0) = img_catg[i];
-		//cout << " ´¦ÀíÍê±Ï: " << img_path[i].c_str() << " " << img_catg[i] << endl;
+		//cout << " å¤„ç†å®Œæ¯•: " << img_path[i].c_str() << " " << img_catg[i] << endl;
 	}
 
 	Mat(labels_mat).copyTo(classes);
 	//cout << data_mat;
 	//cout << labels_mat;
 
-	// ´´½¨·ÖÀàÆ÷²¢ÉèÖÃ²ÎÊı
+	// åˆ›å»ºåˆ†ç±»å™¨å¹¶è®¾ç½®å‚æ•°
 	Ptr<SVM> SVM_params = SVM::create();
 	SVM_params->setType(SVM::C_SVC);
-	SVM_params->setKernel(SVM::RBF);  //ºËº¯Êı£¬ºóÆÚÖØµã·ÖÎöµÄµØ·½  SVM::RBFÎª¾¶Ïò»ù£¨RBF£©ºËº¯Êı£¨¸ßË¹ºËº¯Êı£©
+	SVM_params->setKernel(SVM::RBF);  //æ ¸å‡½æ•°ï¼ŒåæœŸé‡ç‚¹åˆ†æçš„åœ°æ–¹  SVM::RBFä¸ºå¾„å‘åŸºï¼ˆRBFï¼‰æ ¸å‡½æ•°ï¼ˆé«˜æ–¯æ ¸å‡½æ•°ï¼‰
 
 	SVM_params->setDegree(10.0);
 	SVM_params->setGamma(0.09);
@@ -201,14 +190,14 @@ int train()
 			labelMat1.at<int>(i, j) = labels_mat.at<float>(i, j);
 		}
 	}
-	cout << "¿ªÊ¼ÑµÁ·..." << endl;
+	cout << "å¼€å§‹è®­ç»ƒ..." << endl;
 
 	Ptr<TrainData> traindata = ml::TrainData::create(data_mat, ROW_SAMPLE, classes);
-	// ÑµÁ··ÖÀàÆ÷
+	// è®­ç»ƒåˆ†ç±»å™¨
 	SVM_params->train(traindata);
-	//±£´æÄ£ĞÍ
+	//ä¿å­˜æ¨¡å‹
 	SVM_params->save("svm.xml");
-	cout << "ÑµÁ·ºÃÁË£¡£¡£¡" << endl;
+	cout << "è®­ç»ƒå¥½äº†ï¼ï¼ï¼" << endl;
 
 	StatModel::load<SVM>("svm.xml");
 
@@ -216,24 +205,24 @@ int train()
 
 }
 
-/*******Ô¤²â******/
+/*******é¢„æµ‹******/
 
 int predict(Mat test)
 {
 	cv::Ptr<cv::ml::SVM> svm = cv::ml::SVM::create();
-	svm = cv::ml::SVM::load("svm.xml");;//¼ÓÔØÑµÁ·ºÃµÄxmlÎÄ¼ş£¬  
-										//¼ì²âÑù±¾      
-	char result[300]; //´æ·ÅÔ¤²â½á¹û    
+	svm = cv::ml::SVM::load("svm.xml");;//åŠ è½½è®­ç»ƒå¥½çš„xmlæ–‡ä»¶ï¼Œ  
+										//æ£€æµ‹æ ·æœ¬      
+	char result[300]; //å­˜æ”¾é¢„æµ‹ç»“æœ    
 	if (!test.data)
 	{
-		cout << "´ıÔ¤²âÍ¼Ïñ²»´æÔÚ£¡";
+		cout << "å¾…é¢„æµ‹å›¾åƒä¸å­˜åœ¨ï¼";
 		return -1;
 	}
 	cv::Mat trainTempImg(cv::Size(20, 20), 8, 3);
 	trainTempImg.setTo(cv::Scalar(0));
 	cv::resize(test, trainTempImg, trainTempImg.size());
 	cv::HOGDescriptor *hog = new cv::HOGDescriptor(cv::Size(20, 20), cv::Size(10, 10), cv::Size(5, 5), cv::Size(5, 5), 9);
-	vector<float>descriptors;//½á¹ûÊı×é         
+	vector<float>descriptors;//ç»“æœæ•°ç»„         
 	hog->compute(trainTempImg, descriptors, cv::Size(1, 1), cv::Size(0, 0));
 	//cout << "HOG dims: " << descriptors.size() << endl;
 	cv::Mat SVMtrainMat(1, descriptors.size(), CV_32FC1);
@@ -243,7 +232,7 @@ int predict(Mat test)
 		SVMtrainMat.at<float>(0, n) = *iter;
 		n++;
 	}
-	int ret = svm->predict(SVMtrainMat);//¼ì²â½á¹û  
+	int ret = svm->predict(SVMtrainMat);//æ£€æµ‹ç»“æœ  
 	return ret;
 }
 
@@ -276,12 +265,12 @@ int main(int argc, char ** argv)
 		resize(img, img, Size(0, 0), 0.5, 0.5);
 		namedWindow("img", WINDOW_NORMAL);
 		setMouseCallback("img", on_mouse, &img);
-		cout << "Çëµã»÷ÖĞĞÄµãºóÊäÈëÈÎÒâ¼üÖµ"<<endl;
+		cout << "è¯·ç‚¹å‡»ä¸­å¿ƒç‚¹åè¾“å…¥ä»»æ„é”®å€¼"<<endl;
 		imshow("img", img);
 		waitKey();
 	  
-		cout << "ÇëÊäÈëÈÎÒâ¼ü";
-		/*****½«»·ĞÎÇøÓòÒÔÍâµÄÇøÓòÉèÖÃÎªºÚÉ«*****/
+		cout << "è¯·è¾“å…¥ä»»æ„é”®";
+		/*****å°†ç¯å½¢åŒºåŸŸä»¥å¤–çš„åŒºåŸŸè®¾ç½®ä¸ºé»‘è‰²*****/
 		if (center.x - 210 < 0 || center.y - 210 < 0)
 			exit(0);
 		Mat Roi = img(Rect(center.x - 210, center.y - 210, 420, 420));
@@ -292,30 +281,30 @@ int main(int argc, char ** argv)
 		binary = binary&mask;
 		imshow("binary", binary);
 
-		/*****ĞÎÌ¬Ñ§²Ù×÷*****/
+		/*****å½¢æ€å­¦æ“ä½œ*****/
 		Mat dilateimg;
 		Mat element2 = getStructuringElement(MORPH_RECT, Size(5, 5));
-		dilate(binary, dilateimg, element2);  //ÅòÕÍ²Ù×÷
+		dilate(binary, dilateimg, element2);  //è†¨èƒ€æ“ä½œ
 		Mat erodeimg;
-		Mat element = getStructuringElement(MORPH_RECT, Size(2, 2)); //µÚÒ»¸ö²ÎÊıMORPH_RECT±íÊ¾¾ØĞÎµÄ¾í»ıºË£¬µ±È»»¹¿ÉÒÔÑ¡ÔñÍÖÔ²ĞÎµÄ¡¢½»²æĞÍµÄ															
+		Mat element = getStructuringElement(MORPH_RECT, Size(2, 2)); //ç¬¬ä¸€ä¸ªå‚æ•°MORPH_RECTè¡¨ç¤ºçŸ©å½¢çš„å·ç§¯æ ¸ï¼Œå½“ç„¶è¿˜å¯ä»¥é€‰æ‹©æ¤­åœ†å½¢çš„ã€äº¤å‰å‹çš„															
 		erode(dilateimg, erodeimg, element);
 		imshow("erodeimg", erodeimg);
 
 
-		/*****ÇøÓò¼ì²â  Ñ°ÕÒÍâ½Ó¾ØĞÎ*****/
+		/*****åŒºåŸŸæ£€æµ‹  å¯»æ‰¾å¤–æ¥çŸ©å½¢*****/
 		vector<vector<Point>>contours;
-		findContours(erodeimg, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);//ÂÖÀª¼ì²â
+		findContours(erodeimg, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);//è½®å»“æ£€æµ‹
 
 		vector <vector<Point>>::iterator iter = contours.begin();
 		for (; iter != contours.end();)
 		{
-			int cmin = 50, cmax = 500;//ÖÜ³¤µÄÉÏÏÂÏŞ
+			int cmin = 50, cmax = 500;//å‘¨é•¿çš„ä¸Šä¸‹é™
 			double g_dConArea = contourArea(*iter);
 			int c = arcLength(*iter, 1);
 
 			if (c < 10)
 			{
-				iter = contours.erase(iter);//¶ÔÂÖÀª°´ÕÕÃæ»ı¡¢ÖÜ³¤½øĞĞÉ¸Ñ¡
+				iter = contours.erase(iter);//å¯¹è½®å»“æŒ‰ç…§é¢ç§¯ã€å‘¨é•¿è¿›è¡Œç­›é€‰
 			}
 			else
 			{
@@ -324,12 +313,12 @@ int main(int argc, char ** argv)
 		}
 
 
-		/*******É¸Ñ¡Á¬Í¨ÇøÓò ÇĞ¸î×Ö·û Éú³ÉÑµÁ·Êı¾İ*****/
+		/*******ç­›é€‰è¿é€šåŒºåŸŸ åˆ‡å‰²å­—ç¬¦ ç”Ÿæˆè®­ç»ƒæ•°æ®*****/
 		string save_file;
 
 		for (int i = 0; i < contours.size(); i++)
 		{
-			Rect rect = boundingRect(contours[i]);//¼ì²âÍâÂÖÀª
+			Rect rect = boundingRect(contours[i]);//æ£€æµ‹å¤–è½®å»“
 
 			if (rect.width < 35 && rect.width>8 && rect.height < 35 && rect.height>8 && rect.x + 0.5*rect.width - 10 > 0 &&
 				rect.y + 0.5*rect.height - 10 > 0 && rect.x + 0.5*rect.width + 10 < 420 && rect.y + 0.5*rect.height + 10 < 420)
